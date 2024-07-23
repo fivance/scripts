@@ -3,7 +3,7 @@
 # Script to create folders in C: drive
 $createFoldersScript = {
     # Define the paths
-    $baseFolderPath = "C:\Users\$env:USERNAME\ECOMSQLDATA"
+    $baseFolderPath = "C:\ECOMSQLDATA"
     $subFolderPath = "$baseFolderPath\Updbak"
 
     # Create the base folder if it does not exist
