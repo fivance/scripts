@@ -1,3 +1,4 @@
+#Must be run as Admin
 #Creates ECOMSQLDATA folder in C: and subfolder Updbak. Sets locale to hr-hr. Downloads SQL Server 2019 Express with advanced features
 # Script to create folders in C: drive
 $createFoldersScript = {
