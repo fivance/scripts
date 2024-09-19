@@ -1,4 +1,4 @@
-# Define the output file path
+## Define the output file path
 $outputFile = "C:\FirewallAllowedPorts.csv"
 
 # Get all firewall rules
