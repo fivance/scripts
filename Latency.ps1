@@ -1,13 +1,16 @@
-function FixUploadBufferBloat {
-  param (
-    [switch]$Enable,
-    [switch]$Disable
-  )
+#Latency tweaks Menu
 
-  #-------------------------- CREDITS AVEYO FOR CHANGES -----------------------------
+Write-Host "1. Latency QOS tweaks: On"
+Write-Host "2. Latency QOS tweaks: Off"
+while ($true) {
+$choice = Read-Host " "
+if ($choice -match '^[1-2]$') {
+switch ($choice) {
 
-  if ($Enable) {
+1 {
+    Clear-Host
     Write-Host 'Applying Network Settings to Limit Upload Bandwidth and Improve Latency Under Load...'
+    Get-Sleep -Seconds 3
     #Get all network adapters
     $NIC = @()
     foreach ($a in Get-NetAdapter -Physical | Select-Object DeviceID, Name) { 
@@ -169,8 +172,11 @@ function FixUploadBufferBloat {
     &$netShTweaks *>$null
 
   }
-  elseif ($Disable) {
-    Write-Host 'Reverting Network Tweaks...'
+  
+    
+2 {
+        Write-Host 'Reverting Network Tweaks...'
+        Get-Sleep -Seconds 3
     #Get all network adapters
     $NIC = @()
     foreach ($a in Get-NetAdapter -Physical | Select-Object DeviceID, Name) { 
@@ -247,9 +253,7 @@ function FixUploadBufferBloat {
       Get-NetQosPolicy | Remove-NetQosPolicy -Confirm:$False -ea 0
     }
     &$resetQos *>$null
-
-
-  }
-
-
-}
+    
+}    
+  
+}}}
