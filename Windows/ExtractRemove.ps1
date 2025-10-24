@@ -1,29 +1,41 @@
-$targetFolder = Split-Path -Parent $MyInvocation.MyCommand.Definition
+# Extract all ZIP files in the current directory and delete originals
 
-$sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
+$zipFiles = Get-ChildItem -Path . -Filter *.zip
 
-$zipFiles = Get-ChildItem -Path $targetFolder -Filter *.zip
-
-$total = $zipFiles.Count
-$current = 0
-
-foreach ($zipFile in $zipFiles) {
-    $current++
-    Write-Progress -Activity "Extracting ZIP files" -Status "$($zipFile.Name)" -PercentComplete (($current / $total) * 100)
-
-    $extractFolder = Join-Path $targetFolder ($zipFile.BaseName)
-    if (-not (Test-Path $extractFolder)) {
-        New-Item -ItemType Directory -Path $extractFolder | Out-Null
-    }
-
-    try {
-        $process = Start-Process -FilePath "$sevenZipPath" `
-            -ArgumentList @("x", "`"$($zipFile.FullName)`"", "-o`"$extractFolder`"", "-y") `
-            -NoNewWindow -Wait -PassThru -RedirectStandardError "$extractFolder\7zip_error.txt" -RedirectStandardOutput "$extractFolder\7zip_output.txt"
-    } catch {
-    }
-
-    Remove-Item $zipFile.FullName
+if ($zipFiles.Count -eq 0) {
+    Write-Host "No ZIP files found in the current directory." -ForegroundColor Yellow
+    exit
 }
 
-Write-Progress -Activity "Extracting ZIP files" -Completed
+Write-Host "Found $($zipFiles.Count) ZIP file(s) to process." -ForegroundColor Cyan
+
+foreach ($zip in $zipFiles) {
+    # Create folder name by removing .zip extension
+    $destFolder = Join-Path -Path $zip.DirectoryName -ChildPath $zip.BaseName
+    
+    Write-Host "`nProcessing: $($zip.Name)" -ForegroundColor Green
+    
+    try {
+        # Create destination folder if it doesn't exist
+        if (-not (Test-Path $destFolder)) {
+            New-Item -Path $destFolder -ItemType Directory | Out-Null
+            Write-Host "  Created folder: $($zip.BaseName)" -ForegroundColor Gray
+        } else {
+            Write-Host "  Folder already exists: $($zip.BaseName)" -ForegroundColor Gray
+        }
+        
+        # Extract ZIP file
+        Expand-Archive -Path $zip.FullName -DestinationPath $destFolder -Force
+        Write-Host "  Extracted successfully" -ForegroundColor Gray
+        
+        # Delete original ZIP file
+        Remove-Item -Path $zip.FullName -Force
+        Write-Host "  Deleted original ZIP file" -ForegroundColor Gray
+        
+    } catch {
+        Write-Host "  ERROR: Failed to process $($zip.Name)" -ForegroundColor Red
+        Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+
+Write-Host "`nAll done!" -ForegroundColor Cyan
